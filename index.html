@@ -125,7 +125,7 @@ td.n,th.n{text-align:right;white-space:nowrap}
 <main>
 
 <section class="tab active" id="tab-stats">
-  <div class="card hero" id="hero"></div>
+  <div class="card hero" id="hero"><p class="muted" style="margin:0">Chargement des tirages…</p></div>
   <div class="notice">Les tirages sont indépendants : aucune statistique ne prédit le suivant. Ce labo sert à comprendre, comparer et éviter les grilles que tout le monde joue.</div>
 
   <h2>Valeur d'une grille</h2>
@@ -184,8 +184,8 @@ td.n,th.n{text-align:right;white-space:nowrap}
       <div><label for="genWindow">Fenêtre chaud/froid (tirages)</label><input type="number" id="genWindow" min="20" max="1000" value="100"></div>
     </div>
     <div class="row">
-      <div><label for="genInclude">Numéros imposés (max 4)</label><input type="text" id="genInclude" inputmode="numeric" placeholder="ex. 7 23"></div>
-      <div><label for="genExclude">Numéros exclus</label><input type="text" id="genExclude" inputmode="numeric" placeholder="ex. 13 44"></div>
+      <div><label for="genInclude">Numéros imposés (max 4)</label><input type="text" id="genInclude" inputmode="numeric" placeholder="ex. 7,23"></div>
+      <div><label for="genExclude">Numéros exclus</label><input type="text" id="genExclude" inputmode="numeric" placeholder="ex. 13,44"></div>
     </div>
     <div class="row" style="margin-top:12px">
       <button class="primary" id="btnGen">Générer</button>
@@ -198,12 +198,12 @@ td.n,th.n{text-align:right;white-space:nowrap}
   <h2>Système réduit</h2>
   <p class="muted">Tu choisis 6 à 12 numéros, l'algorithme construit le plus petit jeu de grilles qui tient une garantie mathématique si les bons numéros sont dans ta sélection. Même espérance qu'au hasard, mais une couverture organisée.</p>
   <div class="card">
-    <div class="field"><label for="sysNums">Tes numéros (6 à 12)</label><input type="text" id="sysNums" inputmode="numeric" placeholder="ex. 3 9 14 22 27 35 41 48"></div>
+    <div class="field"><label for="sysNums">Tes numéros (6 à 12)</label><input type="text" id="sysNums" inputmode="numeric" placeholder="ex. 3,9,14,22,27,35,41,48"></div>
     <div class="row">
       <div><label for="sysCount">Ou piocher pour toi</label><select id="sysCount"><option>7</option><option>8</option><option selected>9</option><option>10</option><option>11</option><option>12</option></select></div>
       <div class="fix"><button id="btnSysPick">Piocher les numéros</button></div>
     </div>
-    <div class="field"><label for="sysStars">Tes étoiles (2, ou 3 pour jouer les 3 paires)</label><input type="text" id="sysStars" inputmode="numeric" placeholder="ex. 3 9"></div>
+    <div class="field"><label for="sysStars">Tes étoiles (2, ou 3 pour jouer les 3 paires)</label><input type="text" id="sysStars" inputmode="numeric" placeholder="ex. 3,9"></div>
     <div class="field"><label for="sysGuar">Garantie</label>
       <select id="sysGuar">
         <option value="3-3">3 si 3</option>
@@ -250,9 +250,11 @@ td.n,th.n{text-align:right;white-space:nowrap}
 <section class="tab" id="tab-grids">
   <h2 style="margin-top:6px">Mes grilles</h2>
   <div class="card">
-    <div class="field"><label for="gridInput">Ajouter une grille (5 numéros + 2 étoiles)</label>
-      <input type="text" id="gridInput" inputmode="numeric" placeholder="ex. 7 12 23 34 45 + 3 9"></div>
-    <div class="row"><button class="primary" id="btnAddGrid">Ajouter</button></div>
+    <div class="row">
+      <div style="flex:3 1 200px"><label for="gridInput">5 numéros, séparés par des virgules</label><input type="text" id="gridInput" inputmode="numeric" placeholder="ex. 7,12,23,34,45"></div>
+      <div style="flex:1 1 110px"><label for="gridStars">2 étoiles</label><input type="text" id="gridStars" inputmode="numeric" placeholder="ex. 3,9"></div>
+    </div>
+    <div class="row" style="margin-top:10px"><button class="primary" id="btnAddGrid">Ajouter</button></div>
   </div>
   <div class="card">
     <label for="chkRange">Vérifier mes grilles sur</label>
@@ -278,8 +280,11 @@ td.n,th.n{text-align:right;white-space:nowrap}
       <div><label for="addDate">Date</label><input type="date" id="addDate"></div>
       <div><label for="addJack">Jackpot (€, optionnel)</label><input type="number" id="addJack" min="0" step="1000" placeholder="17000000"></div>
     </div>
-    <div class="field"><label for="addNums">Numéros et étoiles</label><input type="text" id="addNums" inputmode="numeric" placeholder="ex. 7 12 23 34 45 + 3 9"></div>
-    <div class="row"><button class="primary" id="btnAddDraw">Enregistrer le tirage</button></div>
+    <div class="row">
+      <div style="flex:3 1 200px"><label for="addNums">5 numéros, séparés par des virgules</label><input type="text" id="addNums" inputmode="numeric" placeholder="ex. 7,12,23,34,45"></div>
+      <div style="flex:1 1 110px"><label for="addStars">2 étoiles</label><input type="text" id="addStars" inputmode="numeric" placeholder="ex. 3,9"></div>
+    </div>
+    <div class="row" style="margin-top:10px"><button class="primary" id="btnAddDraw">Enregistrer le tirage</button></div>
   </div>
 
   <h3>Importer, exporter, réinitialiser</h3>
@@ -2302,7 +2307,8 @@ td.n,th.n{text-align:right;white-space:nowrap}
 11-09-2026,1,7,15,39,50,1,11,111516282</script>
 <script>
 'use strict';
-const VERSION='1.1';
+window.addEventListener('error',function(ev){try{var b=document.getElementById('errbar');if(!b){b=document.createElement('div');b.id='errbar';b.style.cssText='position:fixed;top:0;left:0;right:0;z-index:99;background:#ff7a59;color:#141b3d;padding:8px 12px;font:14px system-ui,sans-serif;word-break:break-word';document.body.appendChild(b)}b.textContent='Erreur : '+(ev.message||ev)+(ev.lineno?' (ligne '+ev.lineno+')':'')+'. Envoie une capture de ce message.'}catch(e){}});
+const VERSION='1.1.2';
 const ERA11_START='2011-05-10', ERA12_START='2016-09-27';
 const BASE_JACKPOT=17000000;
 const RANKS=[[5,2],[5,1],[5,0],[4,2],[4,1],[3,2],[4,0],[2,2],[3,1],[3,0],[1,2],[2,1],[2,0]];
@@ -2346,7 +2352,7 @@ function loadData(){
   const imp=LS.get('eml_csv',null);
   BASE=EMBEDDED;
   if(imp){const r=parseCSV(imp);if(r.draws.length){const lastE=EMBEDDED[EMBEDDED.length-1].d,lastI=r.draws[r.draws.length-1].d;BASE=lastI>=lastE?r.draws:EMBEDDED;}}
-  EXTRA=(LS.get('eml_extra',[])||[]).filter(d=>d&&d.d&&d.n&&d.s).map(d=>({...d,era:eraOf(d.d)}));
+  EXTRA=(LS.get('eml_extra',[])||[]).filter(d=>d&&d.d&&d.n&&d.s).map(d=>Object.assign({},d,{era:eraOf(d.d)}));
   DRAWS=mergeDraws(BASE,EXTRA);
   DRAWS12=DRAWS.filter(d=>d.era===12);
 }
@@ -2621,13 +2627,15 @@ function doBacktest(){
 }
 
 /* ---------- mes grilles ---------- */
-function parseGridInput(str){
-  let n,s;const parts=str.split(/[+*|]|étoiles?|stars?/i);
-  if(parts.length>=2){n=parseNums(parts[0],50);s=parseNums(parts.slice(1).join(' '),12)}
-  else{const all=parseNums(str,50);if(all.length!==7)return null;n=all.slice(0,5);s=all.slice(5,7).filter(x=>x<=12)}
+function ints(str){return ((str||'').match(/\d+/g)||[]).map(Number)}
+function parseGridFields(numStr,starStr){
+  let n=ints(numStr),s=ints(starStr);
+  if(!s.length&&n.length===7){s=n.slice(5);n=n.slice(0,5)}
   if(n.length!==5||s.length!==2)return null;
-  return {n:n.sort((a,b)=>a-b),s:s.sort((a,b)=>a-b)};
+  if(n.some(x=>x<1||x>50)||new Set(n).size!==5||s.some(x=>x<1||x>12)||s[0]===s[1])return null;
+  return {n:n.slice().sort((a,b)=>a-b),s:s.slice().sort((a,b)=>a-b)};
 }
+const GRID_ERR='Il faut 5 numéros (1 à 50) et 2 étoiles (1 à 12), séparés par des virgules';
 function checkRangeDraws(){const v=$('#chkRange').value;return v==='era12'?DRAWS12:DRAWS.slice(-Number(v))}
 function renderGrids(){
   const el=$('#gridsOut');if(!GRIDS.length){el.innerHTML='<p class="empty">Aucune grille enregistrée. Ajoute-en une ci-dessus ou depuis Générer.</p>';return}
@@ -2657,12 +2665,12 @@ function renderData(){
   $('#about').innerHTML=`<p>EuroMillions Lab, version ${VERSION}. Un fichier, hors ligne, tout reste sur cet appareil.</p><p>Ce que l'outil fait : statistiques réelles sur ${DRAWS.length} tirages, génération de grilles selon quatre modes, systèmes réduits à garantie mathématique, valeur d'une grille selon le jackpot, backtest transparent, vérification de tes grilles.</p><p>Ce qu'il ne fait pas : prédire. Chaque tirage est indépendant, chaque combinaison a exactement une chance sur ${fmtInt(comb(50,5)*comb(12,2))} de sortir. Le seul levier réel est d'éviter les grilles populaires pour ne pas partager un éventuel gros gain.</p><p>Joue pour le plaisir, avec un budget que tu peux perdre. Si le jeu devient un problème : SOS Jeux 0800 35 777 (gratuit, 24h/24) ou <a href="https://joueurs.aide-en-ligne.be" rel="noopener" target="_blank">joueurs.aide-en-ligne.be</a>.</p>`;
 }
 function addDraw(){
-  const date=$('#addDate').value,g=parseGridInput($('#addNums').value);
-  if(!date){toast('Date manquante');return}if(!g){toast('Format attendu : 5 numéros + 2 étoiles');return}
+  const date=$('#addDate').value,g=parseGridFields($('#addNums').value,$('#addStars').value);
+  if(!date){toast('Date manquante');return}if(!g){toast(GRID_ERR);return}
   if(eraOf(date)!==12){toast('Date antérieure au format actuel');return}
   const j=Number($('#addJack').value)||null;
   EXTRA=EXTRA.filter(d=>d.d!==date);EXTRA.push({d:date,n:g.n,s:g.s,j,era:12});LS.set('eml_extra',EXTRA);
-  $('#addNums').value='';$('#addJack').value='';refreshAll();toast('Tirage du '+fmtD(date)+' enregistré');
+  $('#addNums').value='';$('#addStars').value='';$('#addJack').value='';refreshAll();toast('Tirage du '+fmtD(date)+' enregistré');
 }
 function importCSV(file){
   const rd=new FileReader();
@@ -2782,8 +2790,9 @@ function bind(){
     if(b.dataset.act==='copy')copyText(gridStr(g));else if(b.dataset.act==='save')saveGrid(g);else if(b.dataset.act==='regen'){const ctx=genCtxFromUI();if(ctx){GEN[i]=genGrid($('#genMode').value,ctx,cryptoRand);renderGen()}}});
   $('#btnBt').addEventListener('click',doBacktest);
   $('#btnBtSeed').addEventListener('click',()=>{$('#btSeed').value=Math.floor(cryptoRand()*999999)+1;doBacktest()});
-  $('#btnAddGrid').addEventListener('click',()=>{const g=parseGridInput($('#gridInput').value);if(!g){toast('Format attendu : 5 numéros + 2 étoiles');return}saveGrid({n:g.n,s:g.s,mode:'manuel'});$('#gridInput').value=''});
-  $('#gridInput').addEventListener('keydown',e=>{if(e.key==='Enter')$('#btnAddGrid').click()});
+  $('#btnAddGrid').addEventListener('click',()=>{const g=parseGridFields($('#gridInput').value,$('#gridStars').value);if(!g){toast(GRID_ERR);return}saveGrid({n:g.n,s:g.s,mode:'manuel'});$('#gridInput').value='';$('#gridStars').value=''});
+  for(const id of ['#gridInput','#gridStars'])$(id).addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();$('#btnAddGrid').click()}});
+  for(const id of ['#addNums','#addStars'])$(id).addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();$('#btnAddDraw').click()}});
   $('#chkRange').addEventListener('change',renderGrids);
   $('#gridsOut').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const i=Number(b.dataset.i);if(b.dataset.act==='gcopy')copyText(gridStr(GRIDS[i]));else if(b.dataset.act==='gdel'){GRIDS.splice(i,1);LS.set('eml_grids',GRIDS);renderGrids();toast('Grille supprimée')}});
   $('#btnAddDraw').addEventListener('click',addDraw);
@@ -2813,7 +2822,8 @@ function setupPWA(){
   }catch(e){}
   if('serviceWorker' in navigator&&location.protocol.startsWith('http')){navigator.serviceWorker.register('./sw.js').catch(()=>{})}
 }
-document.addEventListener('DOMContentLoaded',()=>{bind();refreshAll();renderOdds();setupPWA()});
+function checkUpdate(){try{if(!navigator.serviceWorker||!navigator.serviceWorker.controller)return;fetch(location.href.split('#')[0].split('?')[0],{cache:'no-store'}).then(r=>r.ok?r.text():'').then(t=>{const m=t.match(/const VERSION='([^']+)'/);if(m&&m[1]!==VERSION)toast('Version '+m[1]+' prête : ferme et rouvre l\'app')}).catch(()=>{})}catch(e){}}
+document.addEventListener('DOMContentLoaded',()=>{bind();refreshAll();renderOdds();setTimeout(setupPWA,300);setTimeout(checkUpdate,2500)});
 </script>
 </body>
 </html>
