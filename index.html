@@ -41,7 +41,7 @@ label{display:block;font-size:.9rem;color:var(--muted);margin-bottom:4px}
 .row{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end}
 .row>*{flex:1 1 120px;min-width:0}
 .row>.fix{flex:0 0 auto}
-header{position:sticky;top:0;z-index:5;background:linear-gradient(var(--bg) 70%,rgba(14,22,48,0));padding:12px 16px 8px;display:flex;flex-direction:column;gap:1px}
+header{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line);padding:10px 16px 8px;display:flex;flex-direction:column;gap:1px}
 header h1{white-space:nowrap}
 header .sub{font-size:.85rem;color:var(--muted)}
 main{padding:0 16px}
@@ -128,6 +128,13 @@ td.n,th.n{text-align:right;white-space:nowrap}
   <div class="card hero" id="hero"></div>
   <div class="notice">Les tirages sont indépendants : aucune statistique ne prédit le suivant. Ce labo sert à comprendre, comparer et éviter les grilles que tout le monde joue.</div>
 
+  <h2>Valeur d'une grille</h2>
+  <div class="card">
+    <div class="field"><label for="evJack">Jackpot annoncé (€)</label><input type="number" id="evJack" min="0" step="1000000"></div>
+    <div class="chips" id="evQuick"><button class="small" data-j="17000000">17 M€</button><button class="small" data-j="50000000">50 M€</button><button class="small" data-j="100000000">100 M€</button><button class="small" data-j="150000000">150 M€</button><button class="small" data-j="250000000">250 M€</button></div>
+    <div id="evOut" style="margin-top:10px"></div>
+  </div>
+
   <h2>Période analysée</h2>
   <div class="row">
     <div style="flex:1 1 230px"><label for="period">Période</label><select id="period">
@@ -187,6 +194,34 @@ td.n,th.n{text-align:right;white-space:nowrap}
     </div>
   </div>
   <div id="genOut"></div>
+
+  <h2>Système réduit</h2>
+  <p class="muted">Tu choisis 6 à 12 numéros, l'algorithme construit le plus petit jeu de grilles qui tient une garantie mathématique si les bons numéros sont dans ta sélection. Même espérance qu'au hasard, mais une couverture organisée.</p>
+  <div class="card">
+    <div class="field"><label for="sysNums">Tes numéros (6 à 12)</label><input type="text" id="sysNums" inputmode="numeric" placeholder="ex. 3 9 14 22 27 35 41 48"></div>
+    <div class="row">
+      <div><label for="sysCount">Ou piocher pour toi</label><select id="sysCount"><option>7</option><option>8</option><option selected>9</option><option>10</option><option>11</option><option>12</option></select></div>
+      <div class="fix"><button id="btnSysPick">Piocher les numéros</button></div>
+    </div>
+    <div class="field"><label for="sysStars">Tes étoiles (2, ou 3 pour jouer les 3 paires)</label><input type="text" id="sysStars" inputmode="numeric" placeholder="ex. 3 9"></div>
+    <div class="field"><label for="sysGuar">Garantie</label>
+      <select id="sysGuar">
+        <option value="3-3">3 si 3</option>
+        <option value="2-2">2 si 2</option>
+        <option value="3-4">3 si 4</option>
+        <option value="3-5">3 si 5 (le plus économique)</option>
+        <option value="4-4">4 si 4</option>
+        <option value="4-5">4 si 5</option>
+        <option value="5-5">5 si 5 (système complet)</option>
+      </select></div>
+    <p class="muted" id="sysGuarInfo"></p>
+    <div class="row" style="margin-top:12px">
+      <button class="primary" id="btnSys">Construire le système</button>
+      <button id="btnSysCopy">Copier les grilles</button>
+      <button id="btnSysSave">Enregistrer dans Mes grilles</button>
+    </div>
+  </div>
+  <div id="sysOut"></div>
 </section>
 
 <section class="tab" id="tab-bt">
@@ -2267,7 +2302,7 @@ td.n,th.n{text-align:right;white-space:nowrap}
 11-09-2026,1,7,15,39,50,1,11,111516282</script>
 <script>
 'use strict';
-const VERSION='1.0';
+const VERSION='1.1';
 const ERA11_START='2011-05-10', ERA12_START='2016-09-27';
 const BASE_JACKPOT=17000000;
 const RANKS=[[5,2],[5,1],[5,0],[4,2],[4,1],[3,2],[4,0],[2,2],[3,1],[3,0],[1,2],[2,1],[2,0]];
@@ -2619,7 +2654,7 @@ function renderData(){
   <p class="muted" style="margin-top:10px">Étoiles : 9 jusqu'au 06/05/2011, 11 du 10/05/2011 au 23/09/2016, 12 depuis le 27/09/2016. Deux tirages par semaine (mardi et vendredi) depuis mai 2011.${unknown.length?` Jackpot inconnu pour : ${unknown.join(', ')}.`:''}</p>`;
   $('#price').value=PRICE;
   $('#prizes').innerHTML=`<div class="row" style="align-items:stretch">${Object.keys(DEFAULT_PRIZES).map(k=>`<div style="flex:1 1 90px"><label>${k.replace('+',' + ')}</label><input type="number" min="0" step="1" data-prize="${k}" value="${PRIZES[k]}"></div>`).join('')}</div>`;
-  $('#about').innerHTML=`<p>EuroMillions Lab, version ${VERSION}. Un fichier, hors ligne, tout reste sur cet appareil.</p><p>Ce que l'outil fait : statistiques réelles sur ${DRAWS.length} tirages, génération de grilles selon quatre modes, backtest transparent, vérification de tes grilles.</p><p>Ce qu'il ne fait pas : prédire. Chaque tirage est indépendant, chaque combinaison a exactement une chance sur ${fmtInt(comb(50,5)*comb(12,2))} de sortir. Le seul levier réel est d'éviter les grilles populaires pour ne pas partager un éventuel gros gain.</p><p>Joue pour le plaisir, avec un budget que tu peux perdre. Si le jeu devient un problème : SOS Jeux 0800 35 777 (gratuit, 24h/24) ou <a href="https://joueurs.aide-en-ligne.be" rel="noopener" target="_blank">joueurs.aide-en-ligne.be</a>.</p>`;
+  $('#about').innerHTML=`<p>EuroMillions Lab, version ${VERSION}. Un fichier, hors ligne, tout reste sur cet appareil.</p><p>Ce que l'outil fait : statistiques réelles sur ${DRAWS.length} tirages, génération de grilles selon quatre modes, systèmes réduits à garantie mathématique, valeur d'une grille selon le jackpot, backtest transparent, vérification de tes grilles.</p><p>Ce qu'il ne fait pas : prédire. Chaque tirage est indépendant, chaque combinaison a exactement une chance sur ${fmtInt(comb(50,5)*comb(12,2))} de sortir. Le seul levier réel est d'éviter les grilles populaires pour ne pas partager un éventuel gros gain.</p><p>Joue pour le plaisir, avec un budget que tu peux perdre. Si le jeu devient un problème : SOS Jeux 0800 35 777 (gratuit, 24h/24) ou <a href="https://joueurs.aide-en-ligne.be" rel="noopener" target="_blank">joueurs.aide-en-ligne.be</a>.</p>`;
 }
 function addDraw(){
   const date=$('#addDate').value,g=parseGridInput($('#addNums').value);
@@ -2637,13 +2672,100 @@ function importCSV(file){
 }
 function exportCSV(){const blob=new Blob([toCSV(DRAWS)],{type:'text/csv'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='euromillions.csv';document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500)}
 
+/* ---------- valeur d'une grille ---------- */
+const P52=PN(5)*PS(2);
+function evParts(jackpot){let other=0;for(const [k,j] of RANKS){if(k===5&&j===2)continue;other+=(Number(PRIZES[k+'+'+j])||0)*PN(k)*PS(j)}const J=Math.max(0,jackpot||0);return {jack:J*P52,other,total:J*P52+other}}
+function renderEV(){
+  const inp=$('#evJack');if(inp.value===''&&DRAWS.length){const d=DRAWS[DRAWS.length-1];inp.value=d.j||BASE_JACKPOT}
+  const J=Math.max(0,Number(inp.value)||0),e=evParts(J),price=Number(PRICE)||0;
+  const need=price>e.other?(price-e.other)/P52:0;
+  const rows=[17,50,100,150,200,250].map(m=>{const v=evParts(m*1e6).total;return `<tr><td>${m} M€</td><td class="n">${fmtDec(v,2)} €</td><td class="n">${price>0?fmtPct(v/price,0):'—'}</td></tr>`}).join('');
+  $('#evOut').innerHTML=`<p style="margin-top:0">Avec un jackpot de <b>${fmtEUR(J)}</b>, une grille à ${fmtDec(price,2)} € vaut en moyenne <b>${fmtDec(e.total,2)} €</b> : ${fmtDec(e.jack,2)} € par le jackpot, ${fmtDec(e.other,2)} € par les autres rangs.${price>0?` Tu récupères ${fmtInt(e.total/price*100)} centimes par euro misé.`:''}</p>
+  <p class="muted">${need>250e6?`Pour valoir son prix, le jackpot devrait atteindre ${fmtInt(need/1e6)} M€, au-dessus du plafond de 250 M€ : une grille ne vaut jamais ce qu'elle coûte, et c'est sans compter le partage entre gagnants.`:need>0?`Une grille vaudrait son prix à partir de ${fmtInt(need/1e6)} M€ de jackpot, sans compter le partage entre gagnants.`:'Avec ces montants, une grille vaut déjà son prix.'} Montants hors jackpot indicatifs, modifiables dans Données.</p>
+  <div class="tablewrap"><table><tr><th>Jackpot</th><th class="n">Valeur d'une grille</th><th class="n">Part du prix</th></tr>${rows}</table></div>`;
+}
+
+/* ---------- systèmes réduits ---------- */
+const GUAR_INFO={'3-3':'Si au moins 3 des 5 numéros gagnants sont parmi tes numéros, au moins une grille contient 3 bons numéros ou plus.','2-2':'Si au moins 2 des numéros gagnants sont parmi tes numéros, au moins une grille contient 2 bons numéros ou plus. Petit système, petite garantie.','3-4':'Si au moins 4 des numéros gagnants sont parmi tes numéros, au moins une grille contient 3 bons numéros ou plus.','3-5':'Si les 5 numéros gagnants sont tous parmi tes numéros, au moins une grille contient 3 bons numéros ou plus. Le système le moins cher.','4-4':'Si au moins 4 des numéros gagnants sont parmi tes numéros, au moins une grille contient 4 bons numéros ou plus.','4-5':'Si les 5 numéros gagnants sont tous parmi tes numéros, au moins une grille contient 4 bons numéros ou plus.','5-5':'Toutes les combinaisons de tes numéros : si les 5 gagnants sont parmi eux, une grille a les 5. C\'est le système complet de la Loterie, le plus cher.'};
+function combos(arr,k){const out=[],n=arr.length,cur=[];(function rec(start,depth){if(depth===k){out.push(cur.slice());return}for(let i=start;i<=n-(k-depth);i++){cur.push(arr[i]);rec(i+1,depth+1);cur.pop()}})(0,0);return out}
+function popcnt(x){x=x-((x>>>1)&0x55555555);x=(x&0x33333333)+((x>>>2)&0x33333333);return (((x+(x>>>4))&0x0F0F0F0F)*0x01010101)>>>24}
+function schonheim(v,k,t){if(t<=0)return 1;if(t===1)return Math.ceil(v/k);return Math.ceil(v/k*schonheim(v-1,k-1,t-1))}
+function buildSystem(V,t,g,rand){
+  const blocks=combos(V,5);
+  if(t===5&&g===5)return {grids:blocks,tries:1};
+  const targets=combos(V,t),nT=targets.length,W=Math.ceil(nT/32),pos=new Map(V.map((x,i)=>[x,i]));
+  const mask=a=>a.reduce((m,x)=>m|(1<<pos.get(x)),0);
+  const tM=targets.map(mask),bM=blocks.map(mask);
+  const cover=blocks.map(()=>new Uint32Array(W));
+  for(let b=0;b<blocks.length;b++){const cb=cover[b];for(let j=0;j<nT;j++)if(popcnt(bM[b]&tM[j])>=g)cb[j>>5]|=(1<<(j&31))}
+  const tries=V.length<=8?100:V.length<=10?50:25;let best=null;
+  for(let r=0;r<tries;r++){
+    const covered=new Uint32Array(W);let remaining=nT;const chosen=[];
+    while(remaining>0){
+      let bestB=-1,bestC=-1,ties=0;
+      for(let b=0;b<blocks.length;b++){const cb=cover[b];let c=0;for(let w=0;w<W;w++)c+=popcnt(cb[w]&~covered[w]);
+        if(c>bestC){bestC=c;bestB=b;ties=1}else if(c===bestC){ties++;if(rand()*ties<1)bestB=b}}
+      if(bestC<=0)break;
+      chosen.push(bestB);const cb=cover[bestB];for(let w=0;w<W;w++)covered[w]|=cb[w];
+      remaining=0;for(let j=0;j<nT;j++)if(!(covered[j>>5]&(1<<(j&31))))remaining++;
+    }
+    // retire les grilles devenues inutiles
+    const cnt=new Uint16Array(nT);for(const b of chosen){const cb=cover[b];for(let j=0;j<nT;j++)if(cb[j>>5]&(1<<(j&31)))cnt[j]++}
+    const order=chosen.slice();for(let i=order.length-1;i>0;i--){const k=Math.floor(rand()*(i+1));const tmp=order[i];order[i]=order[k];order[k]=tmp}
+    const keep=new Set(chosen);
+    for(const b of order){const cb=cover[b];let red=true;for(let j=0;j<nT;j++)if((cb[j>>5]&(1<<(j&31)))&&cnt[j]<2){red=false;break}if(red){keep.delete(b);for(let j=0;j<nT;j++)if(cb[j>>5]&(1<<(j&31)))cnt[j]--}}
+    if(!best||keep.size<best.length)best=[...keep];
+  }
+  return {grids:best.map(b=>blocks[b]).sort((a,b)=>a.join(',')<b.join(',')?-1:1),tries};
+}
+function checkGuarantee(V,grids,t,g){for(const T of combos(V,t)){let ok=false;for(const B of grids){let c=0;for(const x of T)if(B.includes(x))c++;if(c>=g){ok=true;break}}if(!ok)return false}return true}
+function pickV(v,rand){const pool=[];for(let x=1;x<=50;x++)pool.push(x);let pick=null;
+  for(let i=0;i<400;i++){pick=pickWeighted(pool,pool.map(()=>1),v,rand);const le31=pick.filter(x=>x<=31).length,ev=pick.filter(x=>x%2===0).length;if(le31>=Math.floor(v*0.4)&&le31<=Math.ceil(v*0.6)&&Math.abs(ev-v/2)<=1.5)return pick}return pick}
+function simulateSystem(grids,V,t,g,N){
+  const draws=DRAWS.slice(-N);let cost=0,gains=0,hits=0,best=null,cases=0,ok=0;
+  for(const d of draws){let maxK=0;for(const gr of grids){const r=matchGrid(gr,d);cost+=PRICE;if(r.k>maxK)maxK=r.k;if(r.rank){hits++;const p=prizeFor(r.k,r.j,d);gains+=p;if(!best||r.rank<best.rank)best={k:r.k,j:r.j,rank:r.rank,date:d.d}}}
+    const inV=d.n.filter(x=>V.includes(x)).length;if(inV>=t){cases++;if(maxK>=g)ok++}}
+  return {n:draws.length,cost,gains,hits,best,cases,ok};
+}
+let SYS=null;
+function doSystem(){
+  const V=parseNums($('#sysNums').value,50).sort((a,b)=>a-b);
+  if(V.length<6||V.length>12){toast('Il faut entre 6 et 12 numéros');return}
+  let stars=parseNums($('#sysStars').value,12).sort((a,b)=>a-b);
+  if(stars.length===0){for(let i=0;i<20;i++){stars=genStars('random',makeCtx(null,100,[],[]),cryptoRand);if(stars[1]>=8)break}$('#sysStars').value=stars.join(' ')}
+  if(stars.length<2||stars.length>3){toast('Il faut 2 ou 3 étoiles');return}
+  const [g,t]=$('#sysGuar').value.split('-').map(Number);
+  const btn=$('#btnSys');btn.disabled=true;btn.textContent='Calcul en cours';
+  setTimeout(()=>{
+    try{
+      const rand=mulberry32(12345+V.reduce((a,b)=>a*31+b,7));
+      const {grids,tries}=buildSystem(V,t,g,rand);
+      const pairs=combos(stars,2);const all=[];for(const B of grids)for(const sp of pairs)all.push({n:B,s:sp});
+      SYS={V,stars,t,g,grids:all,blocks:grids.length,tries};renderSys();
+    }catch(e){toast('Calcul impossible : '+e.message)}
+    btn.disabled=false;btn.textContent='Construire le système';
+  },30);
+}
+function renderSys(){
+  const S=SYS,el=$('#sysOut');if(!S){el.innerHTML='';return}
+  const full=comb(S.V.length,5)*combos(S.stars,2).length,cost=S.grids.length*PRICE;
+  const bound=S.t===S.g&&S.t<5?schonheim(S.V.length,5,S.t):null;
+  const sim=simulateSystem(S.grids,S.V,S.t,S.g,104);
+  el.innerHTML=`<div class="card"><p style="margin-top:0"><b>${S.V.length} numéros, garantie ${S.g} si ${S.t} : ${S.grids.length} grille${S.grids.length>1?'s':''}, ${fmtEUR(cost)} par tirage</b>${S.grids.length<full?` (le système complet en demanderait ${full}).`:'.'}</p>
+  <p class="muted">${GUAR_INFO[S.g+'-'+S.t]}${bound?` Borne théorique : au moins ${bound} grilles pour cette garantie ; trouvé ${S.blocks} en ${S.tries} essais.`:''}</p>
+  <div class="balls" style="margin:8px 0">${S.V.map(x=>ballHTML(x,'sm')).join('')}<span class="plus">+</span>${S.stars.map(x=>ballHTML(x,'star sm')).join('')}</div>
+  <p class="muted">Sur les ${sim.n} derniers tirages, ce système aurait coûté ${fmtEUR(sim.cost)} et rapporté environ ${fmtEUR(sim.gains)} (${sim.hits} grille${sim.hits>1?'s':''} gagnante${sim.hits>1?'s':''}${sim.best?`, meilleur résultat ${sim.best.k} + ${sim.best.j} le ${fmtD(sim.best.date)}`:''}). La condition de la garantie s'est présentée ${sim.cases} fois${sim.cases?`, garantie tenue ${sim.ok} fois sur ${sim.cases}`:''}.</p></div>
+  ${S.grids.map((gr,i)=>`<div class="gridline" style="padding:6px 0;border-bottom:1px dashed var(--line)"><span class="dim" style="width:2em;text-align:right;font-variant-numeric:tabular-nums">${i+1}</span>${gridHTML(gr,null,null,true)}</div>`).join('')}`;
+}
+
 /* ---------- application ---------- */
 function refreshAll(){
   loadData();
   SHAPE12=shapeStats(DRAWS12.length?DRAWS12:DRAWS);
   WINNERS=new Set(DRAWS.map(d=>d.n.join('-')));
-  renderStats();renderGrids();renderData();
+  renderStats();renderGrids();renderData();renderEV();
   $('#genModeInfo').textContent=MODE_INFO[$('#genMode').value];
+  $('#sysGuarInfo').textContent=GUAR_INFO[$('#sysGuar').value];
 }
 function showTab(t){$$('section.tab').forEach(s=>s.classList.toggle('active',s.id==='tab-'+t));$$('#tabs button').forEach(b=>b.classList.toggle('on',b.dataset.t===t));window.scrollTo(0,0)}
 function bind(){
@@ -2668,9 +2790,16 @@ function bind(){
   $('#fileCsv').addEventListener('change',e=>{const f=e.target.files&&e.target.files[0];if(f)importCSV(f);e.target.value=''});
   $('#btnExport').addEventListener('click',exportCSV);
   $('#btnReset').addEventListener('click',()=>{if(!confirm('Revenir aux données d\'origine ? Le CSV importé et les tirages ajoutés à la main seront effacés (tes grilles sont conservées).'))return;LS.del('eml_csv');LS.del('eml_extra');refreshAll();toast('Données d\'origine restaurées')});
-  $('#price').addEventListener('change',e=>{PRICE=Math.max(0,Number(e.target.value)||0);LS.set('eml_price',PRICE);renderGrids()});
-  $('#prizes').addEventListener('change',e=>{const k=e.target.dataset.prize;if(!k)return;PRIZES[k]=Math.max(0,Number(e.target.value)||0);LS.set('eml_prizes',PRIZES);renderGrids()});
-  $('#btnPrizesReset').addEventListener('click',()=>{PRIZES=Object.assign({},DEFAULT_PRIZES);LS.del('eml_prizes');renderData();renderGrids();toast('Montants par défaut restaurés')});
+  $('#price').addEventListener('change',e=>{PRICE=Math.max(0,Number(e.target.value)||0);LS.set('eml_price',PRICE);renderGrids();renderEV();if(SYS)renderSys()});
+  $('#prizes').addEventListener('change',e=>{const k=e.target.dataset.prize;if(!k)return;PRIZES[k]=Math.max(0,Number(e.target.value)||0);LS.set('eml_prizes',PRIZES);renderGrids();renderEV()});
+  $('#btnPrizesReset').addEventListener('click',()=>{PRIZES=Object.assign({},DEFAULT_PRIZES);LS.del('eml_prizes');renderData();renderGrids();renderEV();toast('Montants par défaut restaurés')});
+  $('#evJack').addEventListener('input',renderEV);
+  $('#evQuick').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;$('#evJack').value=b.dataset.j;renderEV()});
+  $('#sysGuar').addEventListener('change',e=>{$('#sysGuarInfo').textContent=GUAR_INFO[e.target.value]});
+  $('#btnSysPick').addEventListener('click',()=>{const v=Number($('#sysCount').value)||9;$('#sysNums').value=pickV(v,cryptoRand).join(' ');let st=[];for(let i=0;i<20;i++){st=genStars('random',makeCtx(null,100,[],[]),cryptoRand);if(st[1]>=8)break}$('#sysStars').value=st.join(' ')});
+  $('#btnSys').addEventListener('click',doSystem);
+  $('#btnSysCopy').addEventListener('click',()=>{if(!SYS){toast('Construis d\'abord un système');return}copyText(SYS.grids.map(gridStr).join('\n'))});
+  $('#btnSysSave').addEventListener('click',()=>{if(!SYS){toast('Construis d\'abord un système');return}let c=0;for(const g of SYS.grids)if(!GRIDS.some(x=>gridStr(x)===gridStr(g))){GRIDS.push({n:g.n,s:g.s,added:isoLocal(new Date()),mode:'système'});c++}LS.set('eml_grids',GRIDS);renderGrids();toast(c+' grille'+(c>1?'s':'')+' enregistrée'+(c>1?'s':''))});
   const nd=nextDrawDate();if(nd)$('#addDate').value=nd;
 }
 function setupPWA(){
